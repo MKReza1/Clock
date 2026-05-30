@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Left leg -->
+    <path
+        android:fillColor="#FF38BDF8"
+        android:strokeColor="#FF38BDF8"
+        android:strokeWidth="1.5"
+        android:pathData="M 32,74 L 22,84 C 21,85 19,85 18,84 C 17,83 17,81 18,80 L 28,70 Z" />
+        
+    <!-- Right leg -->
+    <path
+        android:fillColor="#FF38BDF8"
+        android:strokeColor="#FF38BDF8"
+        android:strokeWidth="1.5"
+        android:pathData="M 76,74 L 86,84 C 87,85 89,85 90,84 C 91,83 91,81 90,80 L 80,70 Z" />
+
+    <!-- Left Bell -->
+    <path
+        android:fillColor="#FF0EA5E9"
+        android:pathData="M 24,38 C 24,30 32,24 38,24 L 40,26 C 36,28 30,34 30,38 Z" />
+
+    <!-- Right Bell -->
+    <path
+        android:fillColor="#FF0EA5E9"
+        android:pathData="M 84,38 C 84,30 76,24 70,24 L 68,26 C 72,28 78,34 78,38 Z" />
+
+    <!-- Outer Clock Face Ring -->
+    <path
+        android:fillColor="#FFE2E8F0"
+        android:pathData="M 54,28 C 37.43,28 24,41.43 24,58 C 24,74.57 37.43,88 54,88 C 70.57,88 84,74.57 84,58 C 84,41.43 70.57,28 54,28 Z M 54,84 C 39.64,84 28,72.36 28,58 C 28,43.64 39.64,32 54,32 C 68.36,32 80,43.64 80,58 C 80,72.36 68.36,84 54,84 Z" />
+
+    <!-- Inner Glow/Accent Circle -->
+    <path
+        android:fillColor="#FF0284C7"
+        android:pathData="M 54,36 C 41.85,36 32,45.85 32,58 C 32,70.15 41.85,80 54,80 C 66.15,80 76,70.15 76,58 C 76,45.85 66.15,36 54,36 Z" />
+
+    <!-- Clock Center Pivot -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 54,55 C 52.34,55 51,56.34 51,58 C 51,59.66 52.34,61 54,61 C 55.66,61 57,59.66 57,58 C 57,56.34 55.66,55 54,55 Z" />
+
+    <!-- Clock Hour Hand -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 53.5,44 L 54.5,44 L 54.5,56 L 53.5,56 Z" />
+
+    <!-- Clock Minute Hand -->
+    <path
+        android:fillColor="#FFF0FDF4"
+        android:pathData="M 54,57.5 L 66,57.5 L 66,58.5 L 54,58.5 Z" />
+
+</vector>

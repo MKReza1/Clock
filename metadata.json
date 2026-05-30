@@ -1,0 +1,6 @@
+{
+  "name": "Alarm Clock",
+  "description": "An advanced alarm clock with custom snooze durations, recurring schedules, timezone support, adaptive themes, offline cloud sync, and customizable ringtones.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
