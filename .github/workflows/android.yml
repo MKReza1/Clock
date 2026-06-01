@@ -1,68 +1,94 @@
-name: Android Build
+name: Android CI - Build APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main", "master" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
 
-      - name: Grant Execute Permission
+      - name: Decode Debug Keystore
+        run: |
+          if [ -f "debug.keystore.base64" ]; then
+            echo "Decoding debug.keystore..."
+            base64 -d debug.keystore.base64 > debug.keystore
+          else
+            echo "debug.keystore.base64 not found. Creating a standard debug keystore as fallback..."
+            keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Prepare Secrets Configuration
+        run: |
+          # The Secrets Gradle Plugin expects a .env or .env.example file.
+          # We check if .env exists, if not, copy .env.example to .env
+          if [ ! -f ".env" ]; then
+            if [ -f ".env.example" ]; then
+              cp .env.example .env
+            else
+              touch .env
+            fi
+          fi
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
+        # Though our environment runs gradle directly, the standard github-runner VM uses the gradle wrapper.
+        # We ensure executable rights are granted just in case.
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/*.apk# This is a basic workflow to help you get started with Actions
+          name: alarm-clock-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-name: CI
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Check if Release Signing Secrets are Configured
+        id: check_secrets
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ] && [ -n "${{ secrets.STORE_PASSWORD }}" ] && [ -n "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "is_signed_release_ready=true" >> $GITHUB_OUTPUT
+            echo "Release secrets found! Building and signing the release APK..."
+          else
+            echo "is_signed_release_ready=false" >> $GITHUB_OUTPUT
+            echo "Missing release secrets. Will only capture debug build."
+          fi
+
+      - name: Prepare Release Keystore and Build Release APK
+        if: steps.check_secrets.outputs.is_signed_release_ready == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > my-upload-key.jks
+          ./gradlew assembleRelease
+          # my-upload-key.jks is created in the root directory, matches rootDir/my-upload-key.jks expected in build.gradle.kts
+
+      - name: Upload Release APK Artifact
+        if: steps.check_secrets.outputs.is_signed_release_ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: alarm-clock-release-apk
+          path: app/build/outputs/apk/release/app-release.apk

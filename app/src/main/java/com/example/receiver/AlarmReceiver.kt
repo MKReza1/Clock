@@ -45,8 +45,14 @@ class AlarmReceiver : BroadcastReceiver() {
             ACTION_RING -> {
                 // 1. Play Alarm Sound & Vibrate via Service
                 val serviceIntent = Intent(context, AlarmService::class.java).apply {
-                    putExtra("RINGTONE_URI", ringtoneUri)
-                    putExtra("VIBRATE", vibrate)
+                    putExtra("ALARM_ID", alarmId)
+                    putExtra("ALARM_LABEL", label)
+                    putExtra("ALARM_SNOOZE", snoozeMin)
+                    putExtra("ALARM_RINGTONE_URI", ringtoneUri)
+                    putExtra("ALARM_RINGTONE_NAME", ringtoneName)
+                    putExtra("ALARM_VIBRATE", vibrate)
+                    putExtra("ALARM_HOUR", intent.getIntExtra("ALARM_HOUR", -1))
+                    putExtra("ALARM_MINUTE", intent.getIntExtra("ALARM_MINUTE", -1))
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(serviceIntent)
