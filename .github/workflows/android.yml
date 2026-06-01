@@ -52,6 +52,17 @@ jobs:
         with:
           validate-wrappers: false
 
+      - name: Heal Gradle Wrapper (Fixes git/crlf corruption or broken jar issues)
+        run: |
+          if command -v gradle >/dev/null 2>&1; then
+            echo "Regenerating wrapper via runner's system gradle..."
+            gradle wrapper
+          else
+            echo "System gradle not found on runner. Fetching pristine official gradle-wrapper.jar..."
+            mkdir -p gradle/wrapper
+            curl -sL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v9.3.1/gradle/wrapper/gradle-wrapper.jar
+          fi
+
       - name: Grant Execute Permission to Gradlew
         run: chmod +x gradlew
         # Though our environment runs gradle directly, the standard github-runner VM uses the gradle wrapper.

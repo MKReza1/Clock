@@ -1,0 +1,8 @@
+# Treat binary files as binary, so Git will never perform line ending translation on them
+
+*.jar binary
+*.keystore binary
+*.jks binary
+*.png binary
+*.webp binary
+*.zip binary
